@@ -1,6 +1,6 @@
 import tkinter as tk
 from Board import Board
-import time
+import time, sys
 
 class App:
     def __init__(self, path, cellsize=100, inverted=False, interval=0.5):
@@ -9,6 +9,7 @@ class App:
         self.inverted = inverted
         self.rect_index = []
         self.interval = interval
+        self.running = True
 
         self.board = Board()
         self.board.load_state(path)
@@ -51,12 +52,18 @@ class App:
 
     def update(self):
         self.configureCanvas(self.board.grid_2d)
-        while True:
+        while self.running:
             self.updateCanvas(self.board.grid_2d)
             self.root.update()
             time.sleep(self.interval)
             self.board.update()
 
+
+    def on_closing(self):
+        self.running = False
+        time.sleep(self.interval)
+        self.root.destroy()
+        sys.exit()
 
 
     def build(self):
@@ -66,7 +73,8 @@ class App:
         self.root = tk.Tk()
         self.root.title("Game of Life")
         self.root.geometry(f"{self.win_width}x{self.win_height}")
-
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        self.root.resizable(width=False, height=False)
         self.canvas = tk.Canvas(width=self.win_width, height=self.win_height)
         self.canvas.pack()
 
@@ -75,7 +83,7 @@ class App:
 
 
 if __name__ == "__main__":
-    App('./ggg.txt', 30, inverted=False, interval=0.0)
+    App('./oscillator.txt', 30, inverted=False, interval=0.05)
 
 
 
